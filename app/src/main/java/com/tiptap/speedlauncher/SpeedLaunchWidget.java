@@ -21,15 +21,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.tiptap.speedlauncher.SpeedLaunchService.WIDGET_PRESS_ACTION;
+
 /**
  * Implementation of App Widget functionality.
  * App Widget Configuration implemented in {@link SpeedLaunchWidgetConfigureActivity SpeedLaunchWidgetConfigureActivity}
  */
 public class SpeedLaunchWidget extends AppWidgetProvider {
 
-    private static final String BUTTON_PRESS_ACTION = "buttonPressAction";
-    private static final String BUTTON_ID = "buttonId";
-    private static final String BUTTON_LETTER = "buttonLetter";
+    public static final String BUTTON_PRESS_ACTION = "buttonPressAction";
+    public static final String BUTTON_ID = "buttonId";
+    public static final String BUTTON_LETTER = "buttonLetter";
 
     private RemoteViews remoteViews;
 
@@ -39,7 +41,6 @@ public class SpeedLaunchWidget extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-
         if (remoteViews == null)
             remoteViews = new RemoteViews(context.getPackageName(), R.layout.speed_launch_widget);
         // There may be multiple widgets active, so update all of them
@@ -79,11 +80,9 @@ public class SpeedLaunchWidget extends AppWidgetProvider {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        super.onReceive(context, intent);
+
         if (intent.getAction().equals(BUTTON_PRESS_ACTION)) {
 
-            String letter = intent.getStringExtra(BUTTON_LETTER);
-            int buttonId = intent.getIntExtra(BUTTON_ID, 0);
 
             //update
             Intent sendUpdateIntent = new Intent(context, SpeedLaunchWidget.class);
@@ -92,21 +91,15 @@ public class SpeedLaunchWidget extends AppWidgetProvider {
             sendUpdateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, intArray);
             context.sendBroadcast(sendUpdateIntent);
 
-            List<LauncherActivityInfo> activityList = new ArrayList<>();
-            LauncherApps launcherApps = (LauncherApps) context.getSystemService(Context.LAUNCHER_APPS_SERVICE);
-            UserManager userManager = (UserManager) context.getSystemService(Context.USER_SERVICE);
-            List<UserHandle> profiles = userManager.getUserProfiles();
-            for (UserHandle profile : profiles) {
-                //if (userManager.isUserRunning(profile)) {
-                    //activityList = launcherApps.getActivityList(null, profile);
-//                    Log.d("username",userManager.getUserName());
-                    activityList.addAll(launcherApps.getActivityList(null, profile));
-                //}
-            }
+            //service
+            Intent sendServiceIntent = new Intent(context, SpeedLaunchService.class);
+            sendServiceIntent.setAction(WIDGET_PRESS_ACTION);
+            sendServiceIntent.putExtras(intent.getExtras());
+            context.sendBroadcast(sendServiceIntent);
 
-            activityList.forEach((info) -> Log.d("app",info.getLabel().toString()));
+
         }
-
+        super.onReceive(context, intent);
     }
 
     @Override

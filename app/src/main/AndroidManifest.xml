@@ -9,6 +9,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SpeedLauncher">
+        <service
+            android:name=".SpeedLaunchService"
+            android:enabled="true"
+            android:exported="true"></service>
+
         <receiver android:name=".SpeedLaunchWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
